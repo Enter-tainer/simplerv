@@ -1,6 +1,6 @@
 
 module ram (input clk,
-            input rstn,
+            input rst,
             input load,
             input store,
             input [2:0] access,
@@ -21,7 +21,7 @@ module ram (input clk,
   reg [7:0]mem[4095:0];
   integer i;
   always@(posedge clk) begin
-    if (rstn == 0) begin
+    if (rst == 1) begin
       for (i = 0; i < 4095; i = i + 1)
         mem[i] <= 8'b0;
     end
