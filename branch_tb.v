@@ -46,7 +46,7 @@ module branch_tb();
     if (taken !== 1) $display("failed");
 
     
-    // test branch succeed
+    // test branch failed
     // beq
     eq = 0;
     funct3 = 3'b000;
