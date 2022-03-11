@@ -1,6 +1,6 @@
 
 module ram (input clk,
-            input rst,
+            input rstn,
             input load,
             input store,
             input [2:0] access,
@@ -35,32 +35,27 @@ module ram (input clk,
           case (access[2:1])
             3'b000: begin
               data_out[31:0] <= {
-              24{mem[actual_address[addr_width-1:0]][7]}, mem[actual_address[addr_width-1:0]][7:0]
+              {24{mem[actual_address[addr_width-1:0]][7]}}, mem[actual_address[addr_width-1:0]][7:0]
               };
             end
             3'b001: begin
               data_out[31:0] <= {
-              16{mem[actual_addressp1[addr_width-1:0]][7]}, mem[actual_addressp1[addr_width-1:0]][7:0], mem[actual_address[addr_width-1:0]][7:0]
+              {16{mem[actual_addressp1[addr_width-1:0]][7]}}, mem[actual_addressp1[addr_width-1:0]][7:0], mem[actual_address[addr_width-1:0]][7:0]
               };
             end
             3'b010: begin
               data_out[31:0] <= {
-              mem[actual_addressp3[addr_width-1:0]][7:0],
-              mem[actual_addressp2[addr_width-1:0]][7:0],
-              mem[actual_addressp1[addr_width-1:0]][7:0],
-              mem[actual_address[addr_width-1:0]][7:0],
-              }
+              mem[actual_addressp3[addr_width-1:0]][7:0], mem[actual_addressp2[addr_width-1:0]][7:0], mem[actual_addressp1[addr_width-1:0]][7:0], mem[actual_address[addr_width-1:0]][7:0]
+              };
             end
             3'b100: begin
               data_out[31:0] <= {
-              24'b0,
-              mem[actual_address[addr_width-1:0]][7:0]
+              24'b0, mem[actual_address[addr_width-1:0]][7:0]
               };
             end
             3'b101: begin
               data_out[31:0] <= {
-              16'b0,
-              mem[actual_addressp1[addr_width-1:0]][7:0], mem[actual_address[addr_width-1:0]][7:0]
+              16'b0, mem[actual_addressp1[addr_width-1:0]][7:0], mem[actual_address[addr_width-1:0]][7:0]
               };
             end
           endcase

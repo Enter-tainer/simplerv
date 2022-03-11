@@ -96,52 +96,5 @@ always @(*) begin
       end
     endcase
   end
-  // case (op)
-  //   4'b0000: begin
-  //     res1[31:0] <= a[31:0] << b[4:0];
-  //   end
-  //   4'b0001: begin
-  //     res1[31:0] <= a[31:0] >>> b[4:0];
-  //   end
-  //   4'b0010: begin
-  //     res1[31:0] <= a[31:0] >> b[4:0];
-  //   end
-  //   4'b0011: begin
-  //     {res2[31:0], res1[31:0]} <= a[31:0] * b[31:0];
-  //     // note that we do not support mulh[[s]u]
-  //   end
-  //   4'b0100: begin
-  //     res1[31:0] <= a[31:0] / b[31:0];
-  //     res2[31:0] <= a[31:0] % b[31:0];
-  //   end
-  //   4'b0101: begin
-  //     res1[31:0] <= a[31:0] + b[31:0];
-  //   end
-  //   4'b0110: begin
-  //     res1[31:0] <= a[31:0] - b[31:0];
-  //   end
-  //   4'b0111: begin
-  //     res1[31:0] <= a[31:0] & b[31:0];
-  //   end
-  //   4'b1000: begin
-  //     res1[31:0] <= a[31:0] | b[31:0];
-  //   end
-  //   4'b1001: begin
-  //     res1[31:0] <= a[31:0] ^ b[31:0];
-  //   end
-  //   4'b1010: begin
-  //     res1[31:0] <= ~(a[31:0] | b[31:0]);
-  //   end
-  //   4'b1011: begin
-  //     ge   <= !($signed(a[31:0]) < $signed(b[31:0]));
-  //     less <= ($signed(a[31:0]) < $signed(b[31:0]));
-  //   end
-  //   4'b1100: begin
-  //     ge   <= !(a[31:0] < b[31:0]);
-  //     less <= (a[31:0] < b[31:0]);
-  //   end
-  //   default:
-  // endcase
-end
 endmodule
 

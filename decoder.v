@@ -18,10 +18,10 @@ module decoder
   assign rs1[4:0] = IR[19:15];
   assign rs2[4:0] = IR[24:20];
   assign rd[4:0] = IR[11:7];
-  assign i_imm[31:0] = { 21{IR[31]}, IR[30:25], IR[24:21], IR[20] };
-  assign s_imm[31:0] = { 21{IR[31]}, IR[30:25], IR[11:8], IR[7] };
-  assign b_imm[31:0] = { 20{IR[31]}, IR[7], IR[30:25], IR[11:8], 1'b0 };
-  assign u_imm[31:0] = { IR[31], IR[30:20], IR[19:12], 13{'b0} };
-  assign j_imm[31:0] = { 12{IR[31]}, IR[19:12], IR[20], IR[30:25], IR[24:21], 1'b0 };
+  assign i_imm[31:0] = { {21{IR[31]}}, IR[30:25], IR[24:21], IR[20] };
+  assign s_imm[31:0] = { {21{IR[31]}}, IR[30:25], IR[11:8], IR[7] };
+  assign b_imm[31:0] = { {20{IR[31]}}, IR[7], IR[30:25], IR[11:8], 1'b0 };
+  assign u_imm[31:0] = { IR[31], IR[30:20], IR[19:12], 13'b0 };
+  assign j_imm[31:0] = { {12{IR[31]}}, IR[19:12], IR[20], IR[30:25], IR[24:21], 1'b0 };
   assign opcode[4:0] = IR[6:2];
 endmodule
