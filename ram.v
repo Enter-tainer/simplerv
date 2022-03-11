@@ -13,16 +13,17 @@ module ram (input clk,
   // 100 LBU
   // 101 LHU
   localparam addr_width = 12;
+  localparam mem_size = (2**addr_width);
   wire [addr_width-1:0] actual_address, actual_addressp1, actual_addressp2, actual_addressp3;
   assign actual_address[addr_width-1:0]   = addr[addr_width-1:0];
   assign actual_addressp1[addr_width-1:0] = {actual_address[addr_width-1:1], 1'b0};
   assign actual_addressp2[addr_width-1:0] = {actual_address[addr_width-1:2], 2'b10};
   assign actual_addressp3[addr_width-1:0] = {actual_address[addr_width-1:2], 2'b11};
-  reg [7:0]mem[4095:0];
+  reg [7:0]mem[mem_size - 1:0];
   integer i;
   always@(posedge clk) begin
     if (rst == 1) begin
-      for (i = 0; i < 4095; i = i + 1)
+      for (i = 0; i <= mem_size - 1; i = i + 1)
         mem[i] <= 8'b0;
     end
     else begin
