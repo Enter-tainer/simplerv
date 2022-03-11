@@ -20,10 +20,6 @@ module ram (input clk,
   assign actual_addressp3[addr_width-1:0] = {actual_address[addr_width-1:2], 2'b11};
   reg [7:0]mem[4095:0];
   integer i;
-  initial begin
-    for (i = 0; i < 4095; i = i + 1)
-      mem[i] <= 8'b0;
-  end
   always@(posedge clk) begin
     if (rstn == 0) begin
       for (i = 0; i < 4095; i = i + 1)
