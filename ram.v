@@ -24,7 +24,7 @@ module ram (input clk,
     for (i = 0; i < 4095; i = i + 1)
       mem[i] <= 8'b0;
   end
-  always@(rstn, posedge clk) begin
+  always@(posedge clk) begin
     if (rstn == 0) begin
       for (i = 0; i < 4095; i = i + 1)
         mem[i] <= 8'b0;

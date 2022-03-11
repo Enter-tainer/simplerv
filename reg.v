@@ -13,7 +13,7 @@ initial begin
   for (i = 0; i < 32; i = i + 1)
     regs[i] <= 32'b0;
 end
-always@(rstn, posedge clk) begin
+always@(posedge clk) begin
   if (rstn == 0) begin
     for (i = 0; i < 32; i = i + 1)
       regs[i] <= 32'b0;
@@ -43,7 +43,7 @@ module pc_reg
   output reg [31:0] pc_address_o
   );
   
-  always@(rstn, posedge clk) begin
+  always@(posedge clk) begin
     if (rstn == 0) begin
       pc_address_o <= 32'b0;
       end else begin
