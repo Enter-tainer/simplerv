@@ -96,5 +96,6 @@ always @(*) begin
       end
     endcase
   end
+end
 endmodule
 
