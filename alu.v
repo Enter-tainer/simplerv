@@ -13,7 +13,7 @@ assign eq     = (a[31:0] == b[31:0]);
 assign ge     = !($signed(a[31:0]) < $signed(b[31:0]));
 assign less   = ($signed(a[31:0]) < $signed(b[31:0]));
 assign ge_u   = !(a[31:0] < b[31:0]);
-assign less_u = !(a[31:0] < b[31:0]);
+assign less_u = (a[31:0] < b[31:0]);
 wire [63:0] mul_res, mul_res_u, mul_res_su;
 wire [31:0] div_res, rem_res;
 wire [31:0] div_res_u, rem_res_u;
