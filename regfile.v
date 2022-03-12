@@ -5,24 +5,29 @@ module regfile (input [4:0] read_reg1_addr,
                 input rst,
                 input write_ena,
                 input clk,
-                output reg [31:0] read_reg1_data	,
-                output reg [31:0] read_reg2_data);
+                output [31:0] read_reg1_data	,
+                output [31:0] read_reg2_data);
 reg [31:0]regs[31:0];
 integer i;
+
+wire [31:0] reg0, reg1, reg2, reg3, reg4;
+assign reg0 = regs[0];
+assign reg1 = regs[1];
+assign reg2 = regs[2];
+assign reg3 = regs[3];
+assign reg4 = regs[4];
+
+assign read_reg1_data = regs[read_reg1_addr];
+assign read_reg2_data = regs[read_reg2_addr];
 always@(posedge clk) begin
   if (rst == 1) begin
     for (i = 0; i < 32; i = i + 1)
       regs[i] <= 32'b0;
   end
   else begin
-    if (write_ena == 1) begin
-      if (write_reg_addr != 0)
+    if (write_ena == 1 && write_reg_addr != 0) begin
         regs[write_reg_addr] <= data_in;
-      else
-        regs[write_reg_addr] <= 32'b0;
     end
-    read_reg1_data[31:0] <= regs[read_reg1_addr][31:0];
-    read_reg2_data[31:0] <= regs[read_reg2_addr][31:0];
   end
 end
 
