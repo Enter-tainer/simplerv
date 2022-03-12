@@ -7,12 +7,14 @@ module branch_tb();
   reg less;
   reg ge_u;
   reg less_u;
+  reg branch;
 
   wire taken;
   
   localparam period = 1;
   initial
   begin
+    branch = 1;
     // test branch succeed
     // beq
     eq = 1;
@@ -93,6 +95,7 @@ module branch_tb();
   .less(less),
   .ge_u(ge_u),
   .less_u(less_u),
+  .branch(branch),
   
   // Outputs
   .taken(taken)
