@@ -1,6 +1,6 @@
 `timescale 1ns/100ps
 
-module reg_tb();
+module regfile_tb();
   reg [4:0] read_reg1_addr;
   reg [4:0] read_reg2_addr;
   reg [4:0] write_reg_addr;
@@ -58,7 +58,7 @@ module reg_tb();
   end
   /*iverilog */
   initial begin
-    $dumpfile("reg_wave.vcd");        //生成的vcd文件名称
+    $dumpfile("regfile_wave.vcd");        //生成的vcd文件名称
     $dumpvars(0, reg_tb);    //tb模块名称
   end
   /*iverilog */
