@@ -89,8 +89,8 @@ module single_cycle_cpu (input clk,
   .taken(branch_taken));
   wire [31:0] branch_target, jal_target, jalr_target, load_address, store_address, auipc_res, mem_address;
   assign branch_target = b_imm[31:0] + current_pc[31:0];
-  assign jal_target    = j_imm[31:0];
-  assign jalr_target   = current_pc[31:0] + i_imm[31:0];
+  assign jal_target    = current_pc[31:0] + j_imm[31:0];
+  assign jalr_target   = rs1_data[31:0] + i_imm[31:0];
   assign load_address  = rs1_data[31:0] + i_imm[31:0];
   assign store_address = rs1_data[31:0] + s_imm[31:0];
   assign auipc_res     = current_pc[31:0] + u_imm[31:0];
