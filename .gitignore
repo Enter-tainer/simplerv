@@ -2,3 +2,4 @@ a.out
 *.vcd
 *_tb
 *.json
+*.jar
