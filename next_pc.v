@@ -10,13 +10,13 @@ module next_pc(input branch_taken,
   assign pc_p_4 = current_pc[31:0] + 4;
   always @(*) begin
     if (branch_taken) begin
-      new_pc <= branch_target;
+      new_pc = branch_target;
       end else if (jalr) begin
-      new_pc <= jalr_target;
+      new_pc = jalr_target;
       end else if (jal) begin
-      new_pc <= jal_target;
+      new_pc = jal_target;
       end else begin
-      new_pc <= pc_p_4;
+      new_pc = pc_p_4;
     end
   end
   

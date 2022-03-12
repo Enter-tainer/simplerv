@@ -109,19 +109,19 @@ module single_cycle_cpu (input clk,
   .data_out(ram_data_out));
   // WB stage
   always @(*) begin
-    write_ena <= 1;
+    write_ena = 1;
     if (auipc) begin
-      rd_in[31:0] <= auipc_res;
+      rd_in[31:0] = auipc_res;
       end else if (jal || jalr) begin
-      rd_in[31:0] <= current_pc[31:0] + 4;
+      rd_in[31:0] = current_pc[31:0] + 4;
       end else if (load) begin
-      rd_in[31:0] <= ram_data_out[31:0];
+      rd_in[31:0] = ram_data_out[31:0];
       end else if (lui) begin
-      rd_in[31:0] <= u_imm[31:0];
+      rd_in[31:0] = u_imm[31:0];
       end else if (op || op_imm) begin
-      rd_in[31:0] <= alu_out[31:0];
+      rd_in[31:0] = alu_out[31:0];
       end else begin
-      write_ena <= 0;
+      write_ena = 0;
     end
   end
   next_pc next_pc_0(
