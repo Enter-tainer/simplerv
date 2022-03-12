@@ -5,6 +5,8 @@ module alu_tb();
   reg unsigned [31:0] b;
   reg [2:0] funct3;
   reg [6:0] funct7;
+  reg op;
+  reg op_imm;
   
   wire eq;
   wire ge;
@@ -18,6 +20,8 @@ module alu_tb();
   begin
     a      = 20;
     b      = 7;
+    op     = 1;
+    op_imm = 0;
     funct3 = 3'b000;
     funct7 = 7'b0000000;
     // +

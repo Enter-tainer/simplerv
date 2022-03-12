@@ -27,8 +27,7 @@ assign rem_res_u  = a[31:0] % b[31:0];
 
 
 always @(*) begin
-  res1[31:0] <= 32'b0;
-  if (funct7[6:0] == 7'b0000001) begin
+  if (op && funct7[6:0] == 7'b0000001) begin
     // RV32-M
     case (funct3[2:0])
       3'b000: begin
@@ -61,8 +60,8 @@ always @(*) begin
     // RV32-I
     case (funct3[2:0])
       3'b000: begin
-        if (funct7[6:0] == 7'b0) begin
-          res1[31:0] <= a[31:0] + b[31:0];
+        if (op_imm) begin
+          end else if (funct7[6:0] == 7'b0) begin
         end
         else begin
           res1[31:0] <= a[31:0] - b[31:0];

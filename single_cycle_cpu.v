@@ -61,12 +61,14 @@ module single_cycle_cpu (input clk,
   wire [31:0] alu_input_a, alu_input_b, alu_out;
   wire eq, ge, less, ge_u, less_u;
   assign alu_input_a = rs1_data;
-  assign alu_input_b = rs2_data;
+  assign alu_input_b = op_imm ? i_imm : rs2_data;
   alu alu_0(
   .a(alu_input_a),
   .b(alu_input_b),
   .funct3(funct3),
   .funct7(funct7),
+  .op(op),
+  .op_imm(op_imm),
   
   .eq(eq),
   .ge(ge_u),
