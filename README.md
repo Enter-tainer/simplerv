@@ -16,16 +16,6 @@
 
 - 找一个萝卜 asm, 注释掉所有 ecall
 - 用 rars 打开 asm, 编译，dump memory
-- 使用工具转换格式，把32bit的word转换为逐byte的小端序
-
-before:
-```
-fff00413
-```
-after:
-```
-13 04 f0 ff
-```
 - 修改 `rom.v` 里面的文件路径
 - 编译： `iverilog ./single_cycle_cpu_tb.v -y . -o single_cycle_cpu_tb`
 - 仿真： `vvp -n single_cycle_cpu_tb -vcd`
