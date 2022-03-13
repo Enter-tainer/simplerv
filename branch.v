@@ -27,6 +27,9 @@ always @(*) begin
       3'b111: begin
         taken = ge_u;
       end
+      default: begin
+        taken = 0;
+      end
     endcase
   end
   else begin

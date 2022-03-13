@@ -122,6 +122,7 @@ module single_cycle_cpu (input clk,
       rd_in[31:0] = alu_out[31:0];
       end else begin
       write_ena = 0;
+      rd_in[31:0] = 32'b0;
     end
   end
   next_pc next_pc_0(
