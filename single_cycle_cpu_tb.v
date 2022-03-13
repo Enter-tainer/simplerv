@@ -13,17 +13,20 @@ module single_cycle_cpu_tb();
     $dumpvars(0, single_cycle_cpu_tb);    //tb模块名称
   end
   reg rst, halt;
+  wire [31:0] reg_a0;
   single_cycle_cpu my_cpu(
     .clk(clk),
     .rst(rst),
-    .halt(halt)
+    .halt(halt),
+    
+    .reg_a0(reg_a0)
   );
   initial begin
     rst = 1;
     halt = 0;
     #period;
     rst = 0;
-    #100;
+    #3999;
     halt = 1;
     #period;
     $stop;

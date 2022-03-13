@@ -1,4 +1,5 @@
 .text
+begin:
 addi s0,zero,1 
 slli s3, s0, 31      # s3=0x80000000
 srai s3, s3, 31      # s3=0xFFFFFFFF   
@@ -63,3 +64,4 @@ ori t0,t0,255
 add   a0,zero,t0       # display t0
 addi   a7,zero,34         # system call for LED display 
 # ecall                 # display 
+j begin

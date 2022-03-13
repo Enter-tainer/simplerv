@@ -12,7 +12,7 @@ module ram (input clk,
   // 010 LW
   // 100 LBU
   // 101 LHU
-  localparam addr_width = 12;
+  localparam addr_width = 11;
   localparam mem_size   = (2**addr_width);
   wire [addr_width-1:0] actual_address, actual_addressp1, actual_addressp2, actual_addressp3;
   assign actual_address[addr_width-1:0]   = addr[addr_width-1:0];

@@ -1,6 +1,7 @@
 module single_cycle_cpu (input clk,
                          input rst,
-                         input halt);
+                         input halt,
+                         output [31:0] reg_a0);
   // IF stage
   wire [31:0] new_pc, current_pc;
   wire [31:0] IR;
@@ -55,7 +56,8 @@ module single_cycle_cpu (input clk,
   .write_ena(write_ena),
   .clk(clk),
   .read_reg1_data(rs1_data),
-  .read_reg2_data(rs2_data)
+  .read_reg2_data(rs2_data),
+  .reg_a0(reg_a0)
   );
   // EX stage
   wire [31:0] alu_input_a, alu_input_b, alu_out;
@@ -71,7 +73,7 @@ module single_cycle_cpu (input clk,
   .op_imm(op_imm),
   
   .eq(eq),
-  .ge(ge_u),
+  .ge(ge),
   .less(less),
   .ge_u(ge_u),
   .less_u(less_u),

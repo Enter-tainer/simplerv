@@ -10,7 +10,7 @@ wire [addr_width-1:0] actual_address, actual_addressp1, actual_addressp2, actual
 reg [7:0]mem[mem_size - 1:0];
 // need readh
 initial begin
-  $readmemh("test/add.hex", mem);
+  $readmemh("/home/mgt/project/rvcpu/test/zmd.hex", mem);
 end
 assign data_out = {mem[actual_addressp3][7:0], mem[actual_addressp2][7:0], mem[actual_addressp1][7:0], mem[actual_address][7:0]};
 endmodule
