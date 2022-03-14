@@ -27,8 +27,10 @@ module ps2_kbd (input clk,
       if (count == 4'd10) begin
         if ((buffer[0] == 0) &&  (ps2_data) &&  (~buffer[9:1])) begin
           fifo[w_ptr] <= buffer[8:1];   // kbd scan code
-          w_ptr       <= w_ptr + 3'b1;
           overflow <= overflow |  (r_ptr == (w_ptr + 3'b1));
+          if (r_ptr != (w_ptr + 3'b1)) begin
+            w_ptr <= w_ptr + 3'b1;
+          end
         end
         count <= 0; // for next
       end
