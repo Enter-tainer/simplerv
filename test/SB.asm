@@ -15,7 +15,7 @@ sb_store:
 sb s1,(t1)
 add a0,zero,s1          
 addi a7,zero,34        # system call for print
-# ecall                  # print
+#ecall                  # print
 
 add s1,s1,s2          #data +1
 addi t1,t1,1           # addr ++  
@@ -28,10 +28,10 @@ sb_branch:
 lw s1,(t1)       #读出数据 
 add a0,zero,s1          
 addi a7,zero,34        # system call for print
-# ecall                  # print
+#ecall                  # print
 addi t1,t1,4    
 addi t3,t3, -1    
 bne t3,zero,sb_branch
 
 addi   a7,zero,10      # system call for exit
-# ecall                  # we are out of here.   
+#ecall                  # we are out of here.   
