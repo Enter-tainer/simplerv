@@ -1,6 +1,10 @@
 module single_cycle_cpu (input clk,
                          input rst,
                          input halt,
+                         input kbd_ready,
+                         input kbd_overflow,
+                         input [7:0] kbd_data,
+                         output kbd_read_enable,
                          output [31:0] reg_a0);
   // IF stage
   wire [31:0] new_pc, current_pc;
@@ -97,17 +101,20 @@ module single_cycle_cpu (input clk,
   assign store_address = rs1_data[31:0] + s_imm[31:0];
   assign auipc_res     = current_pc[31:0] + u_imm[31:0];
   // MEM stage
-  assign mem_address   = load ? load_address : store_address;
+  assign mem_address = load ? load_address : store_address;
   wire [31:0] ram_data_in, ram_data_out;
   assign ram_data_in[31:0] = rs2_data[31:0];
-  ram ram_0(.clk(clk),
+  mmio mmio0(.clk(clk),
   .rst(rst),
   .load(load),
   .store(store),
-  
   .access(funct3[2:0]),
   .addr(mem_address[31:0]),
   .data_in(ram_data_in),
+  .kbd_ready(kbd_ready),
+  .kbd_overflow(kbd_overflow),
+  .kbd_data(kbd_data),
+  .kbd_read_enable(kbd_read_enable),
   .data_out(ram_data_out));
   // WB stage
   always @(*) begin
@@ -123,7 +130,7 @@ module single_cycle_cpu (input clk,
       end else if (op || op_imm) begin
       rd_in[31:0] = alu_out[31:0];
       end else begin
-      write_ena = 0;
+      write_ena   = 0;
       rd_in[31:0] = 32'b0;
     end
   end
