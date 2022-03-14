@@ -89,7 +89,7 @@ always @(*) begin
             res1[31:0] = a[31:0] >> b[4:0];
           end
           else begin
-            res1[31:0] = a[31:0] >>> b[4:0];
+            res1[31:0] = $signed(a[31:0]) >>> b[4:0];
           end
         end
         3'b110: begin
