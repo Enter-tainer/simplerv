@@ -7,7 +7,7 @@ assign actual_address[addr_width-1:0] = addr[addr_width+1:2];
 reg [31:0]mem[mem_size - 1:0];
 // need readh
 initial begin
-  $readmemh("/mnt/d/Doc/simplerv/test/lb.hex", mem);
+  $readmemh("/mnt/d/Doc/simplerv/test/lhu.hex", mem);
 end
 assign data_out = mem[actual_address][31:0];
 endmodule
