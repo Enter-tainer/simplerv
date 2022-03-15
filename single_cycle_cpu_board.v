@@ -7,9 +7,9 @@ module single_cycle_cpu_board(input clk,
                               input PS2_DATA,
                               output reg [7:0] AN,
                               output [7:0] SEG,
-                              output [3:0] LED);
-  wire [31:0] reg_a0;
-  wire cpu_clk, led_clk;
+                              output [5:0] LED);
+  wire [31:0] led_data;
+  wire cpu_clk, led_clk, us_clk;
   wire kbd_read_enable, kbd_ready, kbd_overflow;
   wire [7:0] kbd_data;
   wire [31:0] kbd_display;
@@ -20,6 +20,7 @@ module single_cycle_cpu_board(input clk,
   assign LED[4]      = kbd_overflow;
   assign LED[5]      = kbd_read_enable;
   divider #(500) div1(clk, cpu_clk); // 100kHz
+  divider #(50) div1(clk, us_clk); // 1MHz
   divider #(2500) div2(clk, led_clk);
   ps2_kbd kbd(.clk(cpu_clk),
   .rst(rst),
@@ -30,6 +31,12 @@ module single_cycle_cpu_board(input clk,
   .data(kbd_data),
   .ready(kbd_ready),
   .overflow(kbd_overflow));
+  wire [31:0] clk_cnt;
+  counter cnt0(
+    .clk(us_clk),
+    .rst(rst),
+    .cnt(clk_cnt)
+  );
   single_cycle_cpu my_cpu(
   .clk(cpu_clk),
   .rst(rst),
@@ -37,9 +44,10 @@ module single_cycle_cpu_board(input clk,
   .kbd_ready(kbd_ready),
   .kbd_overflow(kbd_overflow),
   .kbd_data(kbd_data),
+  .clk_cnt(clk_cnt),
   
   .kbd_read_enable(kbd_read_enable),
-  .reg_a0(reg_a0)
+  .led_data(led_data)
   );
   reg [3:0] sel;
   always @(posedge led_clk) begin
@@ -51,5 +59,5 @@ module single_cycle_cpu_board(input clk,
     AN[7:0] = 8'hff;
     AN[sel] = 1'b0;
   end
-  led_display led_decoder(reg_a0[(sel * 4) +: 4], SEG[7:0]);
+  led_display led_decoder(led_data[(sel * 4) +: 4], SEG[7:0]);
 endmodule

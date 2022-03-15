@@ -1,9 +1,9 @@
 .text
 li a1, 0xfbadbeef
 start:
-lw a2, -1(a1)
+lb a2, -1(a1)
 beq zero, a2, start
-lw a0, 0(a1)
+lb a0, 0(a1)
 call sleep
 j start
 

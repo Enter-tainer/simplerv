@@ -6,8 +6,8 @@ module regfile (input [4:0] read_reg1_addr,
                 input write_ena,
                 input clk,
                 output [31:0] read_reg1_data,
-                output [31:0] read_reg2_data,
-                output [31:0] reg_a0);
+                output [31:0] read_reg2_data
+                );
 reg [31:0]regs[31:0];
 integer i;
 
@@ -19,7 +19,6 @@ assign reg3           = regs[3];
 assign reg4           = regs[4];
 assign reg9           = regs[9];
 assign a0             = regs[10];
-assign reg_a0         = a0;
 assign read_reg1_data = regs[read_reg1_addr];
 assign read_reg2_data = regs[read_reg2_addr];
 always@(posedge clk) begin

@@ -15,5 +15,6 @@ module single_cycle_cpu_board_tb();
     #10;
     rst = 0;
     #1999;
+    $stop;
   end
 endmodule

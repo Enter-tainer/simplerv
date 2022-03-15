@@ -4,8 +4,9 @@ module single_cycle_cpu (input clk,
                          input kbd_ready,
                          input kbd_overflow,
                          input [7:0] kbd_data,
+                         input [31:0] clk_cnt,
                          output kbd_read_enable,
-                         output [31:0] reg_a0);
+                         output [31:0] led_data);
   // IF stage
   wire [31:0] new_pc, current_pc;
   wire [31:0] IR;
@@ -60,8 +61,7 @@ module single_cycle_cpu (input clk,
   .write_ena(write_ena),
   .clk(clk),
   .read_reg1_data(rs1_data),
-  .read_reg2_data(rs2_data),
-  .reg_a0(reg_a0)
+  .read_reg2_data(rs2_data)
   );
   // EX stage
   wire [31:0] alu_input_a, alu_input_b, alu_out;
@@ -114,6 +114,8 @@ module single_cycle_cpu (input clk,
   .kbd_ready(kbd_ready),
   .kbd_overflow(kbd_overflow),
   .kbd_data(kbd_data),
+  .clk_cnt(clk_cnt),
+  .led_data(led_data),
   .kbd_read_enable(kbd_read_enable),
   .data_out(ram_data_out));
   // WB stage

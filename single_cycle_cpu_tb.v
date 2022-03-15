@@ -17,9 +17,7 @@ module single_cycle_cpu_tb();
   single_cycle_cpu my_cpu(
     .clk(clk),
     .rst(rst),
-    .halt(halt),
-    
-    .reg_a0(reg_a0)
+    .halt(halt)
   );
   initial begin
     rst = 1;
