@@ -15,7 +15,7 @@ module ram (input clk,
   localparam addr_width = 11;
   localparam mem_size   = (2**addr_width);
   wire [addr_width-1:0] actual_address, actual_address00, actual_address01, actual_address10, actual_address11;
-  assign actual_address[addr_width-1:0] = addr[addr_width-1:2];
+  assign actual_address[addr_width-1:0] = addr[addr_width+1:2];
   wire [1:0] byte_offset, half_word_offset;
   assign byte_offset                      = addr[1:0];
   assign half_word_offset                 = {addr[1], 1'b0};
@@ -24,6 +24,9 @@ module ram (input clk,
   assign actual_address10[addr_width-1:0] = {addr[addr_width-1:2], 2'b10};
   assign actual_address11[addr_width-1:0] = {addr[addr_width-1:2], 2'b11};
   reg [31:0] mem[mem_size - 1:0];
+  initial begin
+    $readmemh("/home/mgt/project/rvcpu/test/test_ram.hex", mem);
+  end
   wire [31:0] load_tmp;
   wire [31:0] data_shifted;
   wire [3:0] byte_we_pattern;
