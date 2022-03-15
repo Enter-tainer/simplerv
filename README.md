@@ -21,3 +21,11 @@
 - 仿真： `vvp -n single_cycle_cpu_tb -vcd`
 
 查看波形时，![](2022-03-13-02-45-21.png) a0 的值即为萝卜的 LED 的值
+
+### 编译 C 程序
+
+```
+clang -T app.lds --target=riscv32-unknown-unknown ./test.c -march=rv32im -ffreestanding -fno-builtin -nostdlib  -mno-relax -fno-PIE
+llvm-objcopy ./a.out --dump-section .text=test.bin
+od -w4 -An --endian little -t x4 ./test.bin > test.hex
+```

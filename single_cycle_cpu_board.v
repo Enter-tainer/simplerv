@@ -20,8 +20,8 @@ module single_cycle_cpu_board(input clk,
   assign LED[4]      = kbd_overflow;
   assign LED[5]      = kbd_read_enable;
   divider #(500) div1(clk, cpu_clk); // 100kHz
-  divider #(50) div1(clk, us_clk); // 1MHz
-  divider #(2500) div2(clk, led_clk);
+  divider #(2500) div2(clk, led_clk); // 20kHz
+  divider #(50) div3(clk, us_clk); // 1MHz
   ps2_kbd kbd(.clk(cpu_clk),
   .rst(rst),
   .ps2_clk(PS2_CLK),
