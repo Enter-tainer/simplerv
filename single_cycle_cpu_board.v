@@ -9,19 +9,23 @@ module single_cycle_cpu_board(input clk,
                               output [7:0] SEG,
                               output [5:0] LED);
   wire [31:0] led_data;
-  wire cpu_clk, led_clk, us_clk;
   wire kbd_read_enable, kbd_ready, kbd_overflow;
   wire [7:0] kbd_data;
   wire [31:0] kbd_display;
-  assign LED[0]      = PS2_CLK;
-  assign LED[1]      = PS2_DATA;
-  assign LED[2]      = cpu_clk;
-  assign LED[3]      = kbd_ready;
-  assign LED[4]      = kbd_overflow;
-  assign LED[5]      = kbd_read_enable;
-  divider #(500) div1(clk, cpu_clk); // 100kHz
-  divider #(2500) div2(clk, led_clk); // 20kHz
-  divider #(50) div3(clk, us_clk); // 1MHz
+  assign LED[0] = PS2_CLK;
+  assign LED[1] = PS2_DATA;
+  assign LED[2] = cpu_clk;
+  assign LED[3] = kbd_ready;
+  assign LED[4] = kbd_overflow;
+  assign LED[5] = kbd_read_enable;
+  wire cpu_clk_p, led_clk_p, us_clk_p;
+  wire cpu_clk, led_clk, us_clk;
+  divider #(5) div1(clk, cpu_clk_p); // 10MHz
+  divider #(2500) div2(clk, led_clk_p); // 20kHz
+  divider #(50) div3(clk, us_clk_p); // 1MHz
+  BUFG bufg_cpu (.O(cpu_clk), .I(cpu_clk_p));
+  BUFG bufg_counter (.O(led_clk), .I(led_clk_p));
+  BUFG bufg_led (.O(us_clk), .I(us_clk_p));
   ps2_kbd kbd(.clk(cpu_clk),
   .rst(rst),
   .ps2_clk(PS2_CLK),
@@ -33,9 +37,9 @@ module single_cycle_cpu_board(input clk,
   .overflow(kbd_overflow));
   wire [31:0] clk_cnt;
   counter cnt0(
-    .clk(us_clk),
-    .rst(rst),
-    .cnt(clk_cnt)
+  .clk(us_clk),
+  .rst(rst),
+  .cnt(clk_cnt)
   );
   single_cycle_cpu my_cpu(
   .clk(cpu_clk),
