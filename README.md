@@ -25,7 +25,7 @@
 ### 编译 C 程序
 
 ```
-clang -T app.lds --target=riscv32-unknown-unknown ./test.c -march=rv32im -ffreestanding -fno-builtin -nostdlib  -mno-relax -fno-PIE
+clang -T app.lds --target=riscv32-unknown-unknown ./test.c -march=rv32im -ffreestanding -fno-builtin -nostdlib  -mno-relax -fno-PIE -G=0
 llvm-objcopy ./a.out --dump-section .text=test_rom.bin --dump-section .data=test_ram.bin 
 od -w4 -An --endian little -v -t x4 ./test_rom.bin > test_rom.hex
 od -w4 -An --endian little -v -t x4 ./test_ram.bin > test_ram.hex
