@@ -38,20 +38,20 @@ module single_cycle_cpu_board(input clk,
   BUFG bufg_led (.O(us_clk), .I(us_clk_p));
   BUFG bufg_vga (.O(vga_clk), .I(vga_clk_p));
   
-  wire vram_load;
-  wire [12:0] vram_addr;
+  wire [9:0] next_x, next_y;
   wire [11:0] vram_data;
+  wire [12:0] vram_addr = next_x[9:3] * 80 + next_y[9:3];
   
-  vga_driver vga0(.vga_clk(vga_clk),
+  vga_driver vga0(.clk(vga_clk),
   .rst(rst),
-  .d_in(vram_data),
-  .addr(vram_addr),
-  .load_vram(vram_load),
-  .r(VGA_R),
-  .g(VGA_G),
-  .b(VGA_B),
-  .hs(VGA_HS),
-  .vs(VGA_VS));
+  .color_in(vram_data),
+  .next_x(next_x),
+  .next_y(next_y),
+  .red(VGA_R),
+  .green(VGA_G),
+  .blue(VGA_B),
+  .hsync(VGA_HS),
+  .vsync(VGA_VS));
   
   ps2_kbd kbd(.clk(cpu_clk),
   .rst(rst),
@@ -70,13 +70,13 @@ module single_cycle_cpu_board(input clk,
   );
   single_cycle_cpu my_cpu(
   .clk(cpu_clk),
+  .vga_clk(vga_clk),
   .rst(rst),
   .halt(halt),
   .kbd_ready(kbd_ready),
   .kbd_overflow(kbd_overflow),
   .kbd_data(kbd_data),
   .clk_cnt(clk_cnt),
-  .vram_load(vram_load),
   .vram_addr(vram_addr),
   .vram_data(vram_data),
   .kbd_read_enable(kbd_read_enable),

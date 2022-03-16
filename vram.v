@@ -1,45 +1,34 @@
-module vram (input clk,
-             input rst,
-             input load,
-             input store,
-             input [12:0] write_addr,
-             input [12:0] read_addr,
-             input [7:0] data_in,
-             output [11:0] data_out);
-  localparam addr_width = 13;
-  localparam mem_size   = 4800;
-  reg [7:0] mem[mem_size - 1:0];
-  // integer i;
-  // initial begin
-  // // $readmemh("");
-  // for (i = 0; i < mem_size; ++i) begin
-  //   mem[i] = 0;
-  // end
-  // end
-  reg [7:0] tmp_data;
-  always @(posedge clk) begin
-    if (store) begin
-      mem[write_addr][7:0] <= data_in[7:0];
+module vram #(parameter DATA = 8,
+              parameter ADDR = 13)
+             (input wire a_clk,
+              input wire a_wr,
+              input wire [ADDR-1:0] a_addr,
+              input wire [DATA-1:0] a_din,
+              output reg [DATA-1:0] a_dout,
+              input wire b_clk,
+              input wire b_wr,
+              input wire [ADDR-1:0] b_addr,
+              input wire [DATA-1:0] b_din,
+              output reg [DATA-1:0] b_dout);
+  localparam mem_size = 4800;
+  // Shared memory
+  reg [DATA-1:0] mem [mem_size-1:0];
+  
+  // Port A
+  always @(posedge a_clk) begin
+    a_dout <= mem[a_addr];
+    if (a_wr) begin
+      a_dout      <= a_din;
+      mem[a_addr] <= a_din;
     end
   end
-  always @(*) begin
-    if (load) begin
-      tmp_data[7:0] = mem[read_addr][7:0];
-    end else begin
-      tmp_data[7:0] = 8'b0;
+  
+  // Port B
+  always @(posedge b_clk) begin
+    b_dout <= mem[b_addr];
+    if (b_wr) begin
+      b_dout      <= b_din;
+      mem[b_addr] <= b_din;
     end
-  end
-  vram_decode decode (
-    .num(tmp_data),
-    .data(data_out)
-  );
-endmodule
-
-module vram_decode (
-  input [7:0] num,
-  output reg [11:0] data
-);
-  always @(*) begin
-    data = { num[7:6], num[7:6], num[5:4], num[5:4], num[3:2], num[3:2] };
   end
 endmodule

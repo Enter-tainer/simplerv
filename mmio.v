@@ -9,7 +9,7 @@ module mmio (input clk,
              input kbd_overflow,
              input [7:0] kbd_data,
              input [31:0] clk_cnt,
-             input vram_load,
+             input vga_clk,
              input [12:0] vram_addr,
              output [11:0] vram_data,
              output reg [31:0] led_data,
@@ -18,6 +18,8 @@ module mmio (input clk,
   wire [31:0] ram_data_out;
   reg [31:0] kbd_data_out;
   reg ram_store, vram_store;
+  wire [7:0] vga_data;
+  wire b_wr = 0;
   ram ram0(
   .clk(clk),
   .rst(rst),
@@ -29,18 +31,23 @@ module mmio (input clk,
   .data_out(ram_data_out)
   );
   vram vram0(
-  .clk(clk),
-  .rst(rst),
-  .load(vram_load),
-  .store(vram_store),
-  .write_addr(addr[12:0]),
-  .read_addr(vram_addr),
-  .data_in(data_in[7:0]),
-  .data_out(vram_data));
+  .a_clk(clk),
+  .a_wr(vram_store),
+  .a_din(data_in[7:0]),
+  .a_addr(addr[12:0]),
+  .b_clk(vga_clk),
+  .b_addr(vram_addr),
+  .b_wr(b_wr),
+  .b_dout(vga_data));
+  vram_decode decoder(
+    .num(vga_data),
+    .data(vram_data)
+  );
   always @(*) begin
     vram_store   = 0;
     ram_store    = 0;
     kbd_data_out = 32'b0;
+    data_out = 32'b0;
     if (load && ( access == 3'b000 || access == 3'b100 ) && addr == 32'hfbadbeef) begin
       // read kbd
       // only allow lb lbu

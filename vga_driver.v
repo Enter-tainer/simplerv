@@ -1,66 +1,164 @@
-`timescale 1ns / 1ps
-module vga_driver (vga_clk,
-                   rst,
-                   d_in,
-                   addr,
-                   load_vram,
-                   r,
-                   g,
-                   b,
-                   hs,
-                   vs);       // vgac
-  input            vga_clk;  // 25MHz
-  input            rst;
-  input     [11:0] d_in;     // rrrr gggg bbbb, pixel
-  output  [12:0] addr;
-  output        load_vram;      // read pixel RAM
-  output reg [3:0] r,g,b; // red, green, blue colors
-  output reg       hs,vs;    // horizontal and vertical synchronization
-  // h_count: VGA horizontal counter (0-799)
-  reg [8:0] row_addr; // pixel ram row address, 480 (512) lines
-  reg [9:0] col_addr; // pixel ram col address, 640 (1024) pixels
+module vga_driver (input wire clk,     // 25 MHz
+                   input wire rst,     // Active high
+                   input [11:0] color_in, // Pixel color data (RRRRGGGGBBB)
+                   output [9:0] next_x,  // x-coordinate of NEXT pixel that will be drawn
+                   output [9:0] next_y,  // y-coordinate of NEXT pixel that will be drawn
+                   output wire hsync,    // HSYNC (to VGA connector)
+                   output wire vsync,    // VSYNC (to VGA connctor)
+                   output [3:0] red,     // RED (to resistor DAC VGA connector)
+                   output [3:0] green,   // GREEN (to resistor DAC to VGA connector)
+                   output [3:0] blue    // BLUE (to resistor DAC to VGA connector
+                   );        // BLANK to VGA connector
   
-  reg [9:0] h_count; // VGA horizontal counter (0-799): pixels
-  always @ (posedge vga_clk) begin
+  // Horizontal localparams (measured in clk cycles)
+  localparam [9:0] H_ACTIVE = 10'd_639 ;
+  localparam [9:0] H_FRONT  = 10'd_15 ;
+  localparam [9:0] H_PULSE  = 10'd_95 ;
+  localparam [9:0] H_BACK   = 10'd_47 ;
+  
+  // Vertical localparams (measured in lines)
+  localparam [9:0] V_ACTIVE = 10'd_479 ;
+  localparam [9:0] V_FRONT  = 10'd_9 ;
+  localparam [9:0] V_PULSE  = 10'd_1 ;
+  localparam [9:0] V_BACK   = 10'd_32 ;
+  
+  // localparams for readability
+  localparam   LOW  = 1'b_0 ;
+  localparam   HIGH = 1'b_1 ;
+  
+  // States (more readable)
+  localparam   [7:0]    H_ACTIVE_STATE = 8'd_0 ;
+  localparam   [7:0]   H_FRONT_STATE   = 8'd_1 ;
+  localparam   [7:0]   H_PULSE_STATE   = 8'd_2 ;
+  localparam   [7:0]   H_BACK_STATE    = 8'd_3 ;
+  
+  localparam   [7:0]    V_ACTIVE_STATE = 8'd_0 ;
+  localparam   [7:0]   V_FRONT_STATE   = 8'd_1 ;
+  localparam   [7:0]   V_PULSE_STATE   = 8'd_2 ;
+  localparam   [7:0]   V_BACK_STATE    = 8'd_3 ;
+  
+  // clked registers
+  reg              hysnc_reg ;
+  reg              vsync_reg ;
+  reg     [7:0]   red_reg ;
+  reg     [7:0]   green_reg ;
+  reg     [7:0]   blue_reg ;
+  reg              line_done ;
+  
+  // Control registers
+  reg     [9:0]   h_counter ;
+  reg     [9:0]   v_counter ;
+  
+  reg     [7:0]    h_state ;
+  reg     [7:0]    v_state ;
+  
+  // State machine
+  always@(posedge clk) begin
+    // At rst . . .
     if (rst) begin
-      h_count <= 10'h0;
-      end else if (h_count == 10'd799) begin
-      h_count <= 10'h0;
-      end else begin
-      h_count <= h_count + 10'h1;
+      // Zero the counters
+      h_counter <= 10'd_0 ;
+      v_counter <= 10'd_0 ;
+      // States to ACTIVE
+      h_state <= H_ACTIVE_STATE  ;
+      v_state <= V_ACTIVE_STATE  ;
+      // Deassert line done
+      line_done <= LOW ;
     end
-  end
-  // v_count: VGA vertical counter (0-524)
-  reg [9:0] v_count; // VGA vertical   counter (0-524): lines
-  always @ (posedge vga_clk or posedge rst) begin
-    if (rst) begin
-      v_count <= 10'h0;
-      end else if (h_count == 10'd799) begin
-      if (v_count == 10'd524) begin
-        v_count <= 10'h0;
-        end else begin
-        v_count <= v_count + 10'h1;
+    else begin
+      //////////////////////////////////////////////////////////////////////////
+      ///////////////////////// HORIZONTAL /////////////////////////////////////
+      //////////////////////////////////////////////////////////////////////////
+      if (h_state == H_ACTIVE_STATE) begin
+        // Iterate horizontal counter, zero at end of ACTIVE mode
+        h_counter <= (h_counter == H_ACTIVE)?10'd_0:(h_counter + 10'd_1) ;
+        // Set hsync
+        hysnc_reg <= HIGH ;
+        // Deassert line done
+        line_done <= LOW ;
+        // State transition
+        h_state <= (h_counter == H_ACTIVE)?H_FRONT_STATE:H_ACTIVE_STATE ;
       end
+        if (h_state == H_FRONT_STATE) begin
+          // Iterate horizontal counter, zero at end of H_FRONT mode
+          h_counter <= (h_counter == H_FRONT)?10'd_0:(h_counter + 10'd_1) ;
+          // Set hsync
+          hysnc_reg <= HIGH ;
+          // State transition
+          h_state <= (h_counter == H_FRONT)?H_PULSE_STATE:H_FRONT_STATE ;
+        end
+          if (h_state == H_PULSE_STATE) begin
+            // Iterate horizontal counter, zero at end of H_PULSE mode
+            h_counter <= (h_counter == H_PULSE)?10'd_0:(h_counter + 10'd_1) ;
+            // Clear hsync
+            hysnc_reg <= LOW ;
+            // State transition
+            h_state <= (h_counter == H_PULSE)?H_BACK_STATE:H_PULSE_STATE ;
+          end
+            if (h_state == H_BACK_STATE) begin
+              // Iterate horizontal counter, zero at end of H_BACK mode
+              h_counter <= (h_counter == H_BACK)?10'd_0:(h_counter + 10'd_1) ;
+              // Set hsync
+              hysnc_reg <= HIGH ;
+              // State transition
+              h_state <= (h_counter == H_BACK)?H_ACTIVE_STATE:H_BACK_STATE ;
+              // Signal line complete at state transition (offset by 1 for synchronous state transition)
+              line_done <= (h_counter == (H_BACK-1))?HIGH:LOW ;
+            end
+      //////////////////////////////////////////////////////////////////////////
+      ///////////////////////// VERTICAL ///////////////////////////////////////
+      //////////////////////////////////////////////////////////////////////////
+      if (v_state == V_ACTIVE_STATE) begin
+        // increment vertical counter at end of line, zero on state transition
+        v_counter<= (line_done == HIGH)?((v_counter == V_ACTIVE)?10'd_0:(v_counter+10'd_1)):v_counter ;
+        // set vsync in active mode
+        vsync_reg <= HIGH ;
+        // state transition - only on end of lines
+        v_state<= (line_done == HIGH)?((v_counter == V_ACTIVE)?V_FRONT_STATE:V_ACTIVE_STATE):V_ACTIVE_STATE ;
+      end
+        if (v_state == V_FRONT_STATE) begin
+          // increment vertical counter at end of line, zero on state transition
+          v_counter<= (line_done == HIGH)?((v_counter == V_FRONT)?10'd_0:(v_counter + 10'd_1)):v_counter ;
+          // set vsync in front porch
+          vsync_reg <= HIGH ;
+          // state transition
+          v_state<= (line_done == HIGH)?((v_counter == V_FRONT)?V_PULSE_STATE:V_FRONT_STATE):V_FRONT_STATE;
+        end
+          if (v_state == V_PULSE_STATE) begin
+            // increment vertical counter at end of line, zero on state transition
+            v_counter<= (line_done == HIGH)?((v_counter == V_PULSE)?10'd_0:(v_counter + 10'd_1)):v_counter ;
+            // clear vsync in pulse
+            vsync_reg <= LOW ;
+            // state transition
+            v_state<= (line_done == HIGH)?((v_counter == V_PULSE)?V_BACK_STATE:V_PULSE_STATE):V_PULSE_STATE;
+          end
+            if (v_state == V_BACK_STATE) begin
+              // increment vertical counter at end of line, zero on state transition
+              v_counter<= (line_done == HIGH)?((v_counter == V_BACK)?10'd_0:(v_counter + 10'd_1)):v_counter ;
+              // set vsync in back porch
+              vsync_reg <= HIGH ;
+              // state transition
+              v_state<= (line_done == HIGH)?((v_counter == V_BACK)?V_ACTIVE_STATE:V_BACK_STATE):V_BACK_STATE ;
+            end
+      
+      //////////////////////////////////////////////////////////////////////////
+      //////////////////////////////// COLOR OUT ///////////////////////////////
+      //////////////////////////////////////////////////////////////////////////
+      // Assign colors if in active mode
+      red_reg<= (h_state == H_ACTIVE_STATE)?((v_state == V_ACTIVE_STATE)?{color_in[11:8],4'd_0}:8'd_0):8'd_0 ;
+      green_reg<= (h_state == H_ACTIVE_STATE)?((v_state == V_ACTIVE_STATE)?{color_in[7:4],4'd_0}:8'd_0):8'd_0 ;
+      blue_reg<= (h_state == H_ACTIVE_STATE)?((v_state == V_ACTIVE_STATE)?{color_in[3:0],4'd_0}:8'd_0):8'd_0 ;
+      
     end
   end
-  // signals, will be latched for outputs
-  wire  [9:0] row    = v_count - 10'd35;     // pixel ram row addr
-  wire  [9:0] col    = h_count - 10'd143;    // pixel ram col addr
-  wire        h_sync = (h_count > 10'd95);    //  96 -> 799
-  wire        v_sync = (v_count > 10'd1);     //   2 -> 524
-  wire        read = (h_count > 10'd142) && // 143 -> 782
-  (h_count < 10'd783) && //        640 pixels
-  (v_count > 10'd34)  && //  35 -> 514
-  (v_count < 10'd515);   //        480 lines
-  // vga signals
-  wire [12:0] new_row = row[8:3];
-  assign addr[12:0]      = new_row[12:0] * 80 + col[9:3];
-  assign load_vram = read;
-  always @ (posedge vga_clk) begin
-    hs <= h_sync;   // horizontal synchronization
-    vs <= v_sync;   // vertical   synchronization
-    r  <= load_vram ? d_in[11:8] : 4'h0; // 4-bit r
-    g  <= load_vram ? d_in[7:4] : 4'h0; // 4-bit green
-    b  <= load_vram ? d_in[3:0] : 4'h0; // 4-bit b
-  end
+  // Assign output values - to VGA connector
+  assign hsync = hysnc_reg ;
+  assign vsync = vsync_reg ;
+  assign red   = red_reg[7:4] ;
+  assign green = green_reg[7:4] ;
+  assign blue  = blue_reg[7:4] ;
+  // The x/y coordinates that should be available on the NEXT cycle
+  assign next_x = (h_state == H_ACTIVE_STATE)?h_counter:10'd_0 ;
+  assign next_y = (v_state == V_ACTIVE_STATE)?v_counter:10'd_0 ;
+  
 endmodule
