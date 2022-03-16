@@ -4,3 +4,4 @@ a.out
 *.json
 *.jar
 *.bin
+__pycache__

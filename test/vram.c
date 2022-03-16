@@ -33,18 +33,17 @@ uint8_t w = 0b11111100;
 int main() {
   int cnt = 0;
   uint8_t colors[] = {r, g, b, y, p, w};
-  for (int i = 0; i < 60; ++i) {
-    *LED_ADDR = i;
-    for (int j = 0; j < 80; ++j) {
-      if (j % 2 == 0)
-        VRAM_ADDR[i * 80 + j] = 0b11000000;
-      else
-        VRAM_ADDR[i * 80 + j] = 0b00110000;
-    }
-  }
   while (1) {
     cnt ++;
-    *LED_ADDR = cnt;
-    sleep(1000 * 500);
+    *LED_ADDR = cnt * 4;
+    for (int i = 0; i < 60; ++i) {
+      for (int j = 0; j < 80; ++j) {
+        if ((cnt + j + i) % 2 == 0)
+          VRAM_ADDR[i * 80 + j] = r;
+        else
+          VRAM_ADDR[i * 80 + j] = g;
+      }
+    }
+    sleep(1000 * 1000);
   }
 }

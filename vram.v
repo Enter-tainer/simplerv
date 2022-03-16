@@ -9,8 +9,12 @@ module vram (input clk,
   localparam addr_width = 13;
   localparam mem_size   = 4800;
   reg [7:0] mem[mem_size - 1:0];
+  // integer i;
   // initial begin
-  // $readmemh("");
+  // // $readmemh("");
+  // for (i = 0; i < mem_size; ++i) begin
+  //   mem[i] = 0;
+  // end
   // end
   reg [7:0] tmp_data;
   always @(posedge clk) begin
@@ -36,6 +40,6 @@ module vram_decode (
   output reg [11:0] data
 );
   always @(*) begin
-    data = { num[7:6], 2'b11, num[5:4], 2'b11, num[3:2], 2'b11 };
+    data = { num[7:6], num[7:6], num[5:4], num[5:4], num[3:2], num[3:2] };
   end
 endmodule

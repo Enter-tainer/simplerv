@@ -25,7 +25,7 @@ module ram (input clk,
   assign actual_address11[addr_width-1:0] = {addr[addr_width-1:2], 2'b11};
   reg [31:0] mem[mem_size - 1:0];
   initial begin
-    $readmemh("/home/mgt/project/rvcpu/test/mmio_test_rom.hex", mem);
+    $readmemh("/home/mgt/project/rvcpu/test/vram.ram.hex", mem);
   end
   wire [31:0] load_tmp;
   wire [31:0] data_shifted;
