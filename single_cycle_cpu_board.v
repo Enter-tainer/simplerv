@@ -40,7 +40,7 @@ module single_cycle_cpu_board(input clk,
   
   wire [9:0] next_x, next_y;
   wire [11:0] vram_data;
-  wire [12:0] vram_addr = next_x[9:3] * 80 + next_y[9:3];
+  wire [12:0] vram_addr = next_x[9:3] + next_y[9:3] * 80;
   
   vga_driver vga0(.clk(vga_clk),
   .rst(rst),
