@@ -13,6 +13,7 @@ SECTIONS
   .text : 
   {
     . = ALIGN(4);
+    *(.text.start);
   } > rom
   .bss (NOLOAD): 
   {
