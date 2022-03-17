@@ -78,7 +78,9 @@ module mmio (input clk,
     end
   end
   always @(posedge clk) begin
-    if (load && access == 3'b000 && addr == 32'hfbadbeef) begin
+    if (load && ( access == 3'b000 || access == 3'b100 ) && addr == 32'hfbadbeef) begin
+      // read kbd
+      // only allow lb lbu
       kbd_read_enable <= 1;
       end else begin
       kbd_read_enable <= 0;
