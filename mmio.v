@@ -10,15 +10,17 @@ module mmio (input clk,
              input [7:0] kbd_data,
              input [31:0] clk_cnt,
              input vga_clk,
-             input [12:0] vram_addr,
+             input [9:0] vram_addr_x,
+             input [9:0] vram_addr_y,
+             output vram_num,
              output [11:0] vram_data,
              output reg [31:0] led_data,
              output reg kbd_read_enable,
              output reg [31:0] data_out);
   wire [31:0] ram_data_out;
   reg [31:0] kbd_data_out;
+  reg commit_vram;
   reg ram_store, vram_store;
-  wire [7:0] vga_data;
   wire b_wr = 0;
   ram ram0(
   .clk(clk),
@@ -30,25 +32,25 @@ module mmio (input clk,
   .data_in(data_in),
   .data_out(ram_data_out)
   );
-  vram vram0(
+  double_frame_buffer fb0  (.rst(rst),
   .a_clk(clk),
   .a_wr(vram_store),
-  .a_din(data_in[7:0]),
   .a_addr(addr[12:0]),
+  .a_din(data_in[7:0]),
+  .commit(commit_vram),
   .b_clk(vga_clk),
-  .b_addr(vram_addr),
-  .b_wr(b_wr),
-  .b_dout(vga_data));
-  vram_decode decoder(
-    .num(vga_data),
-    .data(vram_data)
+  .b_addr_x(vram_addr_x),
+  .b_addr_y(vram_addr_y),
+  .vram_data(vram_data),
+  .vram_num(vram_num)
   );
   always @(*) begin
     vram_store   = 0;
     ram_store    = 0;
     kbd_data_out = 32'b0;
-    data_out = 32'b0;
-    if (load && ( access == 3'b000 || access == 3'b100 ) && addr == 32'hfbadbeef) begin
+    data_out     = 32'b0;
+    commit_vram  = 0;
+    if (load && (access == 3'b000 || access == 3'b100) && addr == 32'hfbadbeef) begin
       // read kbd
       // only allow lb lbu
       if (kbd_ready) begin
@@ -59,18 +61,21 @@ module mmio (input clk,
       end
       data_out[31:0] = kbd_data_out[31:0];
     end
-    else if (load && ( access == 3'b000 || access == 3'b100 ) && addr == 32'hfbadbeee) begin
+    else if (load && (access == 3'b000 || access == 3'b100) && addr == 32'hfbadbeee) begin
       // read kbd_ready
       // only allow lb, lbu
       data_out[31:0] = { 31'b0, kbd_ready };
     end
     else if (load && access == 3'b010 && addr == 32'hfbadbedf) begin
-      // read us clock
-      // only allow lw
-      data_out[31:0] = clk_cnt;
-      end
+    // read us clock
+    // only allow lw
+    data_out[31:0] = clk_cnt;
+    end
+    else if (store && access == 3'b000 && addr == 32'hfbadf000) begin
+      commit_vram = 1;
+    end
     else if (store && access == 3'b000 && addr >= 32'hfbad0000 && addr < 32'hfbad0000 + 80 * 60) begin
-      vram_store = store;
+    vram_store = store;
     end
     else begin
       ram_store      = store;
@@ -78,7 +83,7 @@ module mmio (input clk,
     end
   end
   always @(posedge clk) begin
-    if (load && ( access == 3'b000 || access == 3'b100 ) && addr == 32'hfbadbeef) begin
+    if (load && (access == 3'b000 || access == 3'b100) && addr == 32'hfbadbeef) begin
       // read kbd
       // only allow lb lbu
       kbd_read_enable <= 1;

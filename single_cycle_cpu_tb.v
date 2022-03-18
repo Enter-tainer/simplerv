@@ -24,7 +24,7 @@ module single_cycle_cpu_tb();
     halt = 0;
     #period;
     rst = 0;
-    #99999;
+    #999990;
     halt = 1;
     #period;
     $stop;

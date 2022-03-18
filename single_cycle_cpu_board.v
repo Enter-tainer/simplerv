@@ -12,23 +12,25 @@ module single_cycle_cpu_board(input clk,
                               output VGA_VS,
                               output reg [7:0] AN,
                               output [7:0] SEG,
-                              output [5:0] LED);
+                              output [6:0] LED);
   wire [31:0] led_data;
   wire kbd_read_enable, kbd_ready, kbd_overflow;
   wire [7:0] kbd_data;
   wire [31:0] kbd_display;
+  wire vram_num;
   assign LED[0] = PS2_CLK;
   assign LED[1] = PS2_DATA;
   assign LED[2] = cpu_clk;
   assign LED[3] = kbd_ready;
   assign LED[4] = kbd_overflow;
   assign LED[5] = kbd_read_enable;
+  assign LED[6] = vram_num;
   wire cpu_clk_p, led_clk_p, us_clk_p, vga_clk_p;
   wire cpu_clk, led_clk, us_clk, vga_clk;
   // assign cpu_clk = cpu_clk_p;
   // assign led_clk = led_clk_p;
   // assign vga_clk = vga_clk_p;
-  divider #(50) div1(clk, cpu_clk_p); // 1MHz
+  divider #(10) div1(clk, cpu_clk_p); // 5MHz
   divider #(2500) div2(clk, led_clk_p); // 20kHz
   divider #(50) div3(clk, us_clk_p); // 1MHz
   divider #(2) div4(clk, vga_clk_p); // 25MHz
@@ -40,7 +42,6 @@ module single_cycle_cpu_board(input clk,
   
   wire [9:0] next_x, next_y;
   wire [11:0] vram_data;
-  wire [12:0] vram_addr = next_x[9:3] + next_y[9:3] * 80;
   
   vga_driver vga0(.clk(vga_clk),
   .rst(rst),
@@ -77,7 +78,9 @@ module single_cycle_cpu_board(input clk,
   .kbd_overflow(kbd_overflow),
   .kbd_data(kbd_data),
   .clk_cnt(clk_cnt),
-  .vram_addr(vram_addr),
+  .vram_addr_x(next_x),
+  .vram_addr_y(next_y),
+  .vram_num(vram_num),
   .vram_data(vram_data),
   .kbd_read_enable(kbd_read_enable),
   .led_data(led_data)
