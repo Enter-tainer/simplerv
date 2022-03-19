@@ -25,7 +25,7 @@ module ram (input clk,
   assign actual_address11[addr_width-1:0] = {addr[addr_width-1:2], 2'b11};
   reg [31:0] mem[mem_size - 1:0];
   initial begin
-    $readmemh("/home/mgt/project/tetris-sdl-c/build/ram.hex", mem);
+    $readmemh("/home/mgt/project/tetris-sdl-c/build/ram.mem", mem);
   end
   wire [31:0] load_tmp;
   wire [31:0] data_shifted;
