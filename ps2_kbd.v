@@ -10,7 +10,7 @@ module ps2_kbd (input clk,
   reg [3:0] count;     // count ps2_data bits, internal signal, for test
   reg [9:0] buffer;     // ps2_data bits
   reg [31:0] fifo[7:0];   // data fifo
-  reg [2:0] w_ptr, r_ptr;  // fifo write and read pointers
+  reg [5:0] w_ptr, r_ptr;  // fifo write and read pointers
   reg [2:0] ps2_clk_sync;
   
   always @ (posedge clk) begin
@@ -27,9 +27,9 @@ module ps2_kbd (input clk,
       if (count == 4'd10) begin
         if ((buffer[0] == 0) &&  (ps2_data) &&  (~buffer[9:1])) begin
           fifo[w_ptr] <= buffer[8:1];   // kbd scan code
-          overflow <= overflow |  (r_ptr == (w_ptr + 3'b1));
-          if (r_ptr != (w_ptr + 3'b1)) begin
-            w_ptr <= w_ptr + 3'b1;
+          overflow <= overflow |  (r_ptr == (w_ptr + 1));
+          if (r_ptr != (w_ptr + 1)) begin
+            w_ptr <= w_ptr + 1;
           end
         end
         count <= 0; // for next
@@ -40,7 +40,7 @@ module ps2_kbd (input clk,
       end
     end
       if (read_enable && ready) begin
-        r_ptr    <= r_ptr + 3'b1;
+        r_ptr    <= r_ptr + 1;
         overflow <= 0;
       end
   end
