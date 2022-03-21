@@ -12,6 +12,13 @@ module mmio (input clk,
              input vga_clk,
              input [9:0] vram_addr_x,
              input [9:0] vram_addr_y,
+             input uart_r_ready,
+             input uart_w_ready, 
+             input [7:0] uart_r_data,
+          
+             output reg uart_r_enable, 
+             output reg uart_w_enable,
+             output [7:0] uart_w_data,
              output vram_num,
              output [11:0] vram_data,
              output reg [31:0] led_data,
@@ -22,6 +29,7 @@ module mmio (input clk,
   reg commit_vram;
   reg ram_store, vram_store;
   wire b_wr = 0;
+  assign uart_w_data[7:0] = data_in[7:0];
   ram ram0(
   .clk(clk),
   .rst(rst),
@@ -50,6 +58,7 @@ module mmio (input clk,
     kbd_data_out = 32'b0;
     data_out     = 32'b0;
     commit_vram  = 0;
+    uart_w_enable = 0; 
     if (load && (access == 3'b000 || access == 3'b100) && addr == 32'hfbadbeef) begin
       // read kbd
       // only allow lb lbu
@@ -71,6 +80,32 @@ module mmio (input clk,
     // only allow lw
     data_out[31:0] = clk_cnt;
     end
+    else if (load && (access == 3'b000 || access == 3'b100) && addr == 32'hfbada000) begin
+      // uart read ready
+      // allow lb lbu
+      data_out[31:0] = {31'b0, uart_r_ready};
+    end
+    else if (load && (access == 3'b000 || access == 3'b100) && addr == 32'hfbada001) begin
+      // uart write ready
+      // allow lb lbu
+      data_out[31:0] = {31'b0, uart_w_ready};
+    end
+    else if (load && (access == 3'b000 || access == 3'b100) && addr == 32'hfbada002) begin
+      // uart read data
+      // allow lb lbu
+      if (uart_r_ready) begin
+        data_out[31:0] = {24'b0, uart_r_data[7:0]};        
+      end else begin
+        data_out[31:0] = 32'b0;
+      end
+    end
+    else if (store && access == 3'b000 && addr == 32'hfbada003) begin
+      // uart write data
+      // allow sb
+      if (uart_w_ready) begin
+        uart_w_enable = 1;        
+      end
+    end
     else if (store && access == 3'b000 && addr == 32'hfbadf000) begin
       commit_vram = 1;
     end
@@ -89,6 +124,13 @@ module mmio (input clk,
       kbd_read_enable <= 1;
       end else begin
       kbd_read_enable <= 0;
+    end
+    if (load && (access == 3'b000 || access == 3'b100) && addr == 32'hfbada002) begin
+      // read uart fifo
+      // only allow lb lbu
+      uart_r_enable <= 1;
+    end else begin
+      uart_r_enable <= 0;
     end
     
     if (store && access == 3'b010 && addr == 32'hfbadc0fe) begin
