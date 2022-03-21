@@ -1,6 +1,5 @@
 
 module uart (
-    input wire clk,
     input wire cpu_clk,
     input rst,
     
@@ -27,17 +26,17 @@ module uart (
   assign r_data_out = r_fifo[r_r_ptr];
   wire [7:0] uart_out;
   wire rx_done, tx_done, tx_busy;
-  reg tx_enable;
+  wire tx_enable = !w_empty;
   UART_RX rx0 (
    .i_Rst(rst),
-   .i_Clock(clk),
+   .i_Clock(cpu_clk),
    .i_RX_Serial(rx),
    .o_RX_DV(rx_done),
    .o_RX_Byte(uart_out)
   );
   UART_TX tx0 (
   .i_Rst(rst),
-  .i_Clock(clk),
+  .i_Clock(cpu_clk),
   .i_TX_DV(tx_enable),
   .i_TX_Byte(w_fifo[w_r_ptr]), 
   .o_TX_Active(tx_busy),
@@ -58,7 +57,7 @@ module uart (
       end
     end
   end
-  always @(posedge clk) begin
+  always @(posedge cpu_clk) begin
     if (rst == 1) begin
       r_w_ptr <= 0;
       r_overflow <= 0;
@@ -69,13 +68,8 @@ module uart (
         r_overflow <= r_overflow |  (r_r_ptr == (r_w_ptr + 1));
         r_w_ptr <= r_w_ptr + 1;
       end
-      if (tx_busy) begin
-        tx_enable <= 0;
-      end else if (tx_done) begin
+      if (tx_done) begin
         w_r_ptr <= w_r_ptr + 1;
-        tx_enable <= !w_empty;
-      end else begin
-        tx_enable <= !w_empty;
       end
     end
   end
@@ -97,7 +91,7 @@ endmodule
 //////////////////////////////////////////////////////////////////////////////
 
 module UART_RX
-  #(parameter CLKS_PER_BIT = 868)
+  #(parameter CLKS_PER_BIT = 87)
   (
    input            i_Rst,
    input            i_Clock,
@@ -239,7 +233,7 @@ endmodule // UART_RX
 // (25000000)/(115200) = 217
  
 module UART_TX 
-  #(parameter CLKS_PER_BIT = 868)
+  #(parameter CLKS_PER_BIT = 87)
   (
    input       i_Rst,
    input       i_Clock,
@@ -364,6 +358,7 @@ module UART_TX
       CLEANUP :
         begin
           r_SM_Main <= IDLE;
+          o_TX_Done     <= 1'b0;
         end
       
       

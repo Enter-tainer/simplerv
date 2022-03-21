@@ -80,7 +80,6 @@ module single_cycle_cpu_board(input clk,
   wire [7:0] uart_r_data;
   wire [7:0] uart_w_data;
   uart uart0 (
-    .clk(clk),
     .cpu_clk(cpu_clk),
     .rst(rst),
     
