@@ -44,10 +44,12 @@ module single_cycle_cpu_board(input clk,
   
   wire [9:0] next_x, next_y;
   wire [11:0] vram_data;
+  wire new_frame;
   
   vga_driver vga0(.clk(vga_clk),
   .rst(rst),
   .color_in(vram_data),
+  .new_frame(new_frame),
   .next_x(next_x),
   .next_y(next_y),
   .red(VGA_R),
@@ -105,6 +107,7 @@ module single_cycle_cpu_board(input clk,
   .clk_cnt(clk_cnt),
   .vram_addr_x(next_x),
   .vram_addr_y(next_y),
+  .new_frame(new_frame),
   
   .uart_r_ready(uart_r_ready),
   .uart_w_ready(uart_w_ready), 

@@ -1,6 +1,7 @@
 module vga_driver (input wire clk,     // 25 MHz
                    input wire rst,     // Active high
                    input [11:0] color_in, // Pixel color data (RRRRGGGGBBB)
+                   output wire new_frame, // pull up for 1 cycle when a new frame starts
                    output [9:0] next_x,  // x-coordinate of NEXT pixel that will be drawn
                    output [9:0] next_y,  // y-coordinate of NEXT pixel that will be drawn
                    output wire hsync,    // HSYNC (to VGA connector)
@@ -160,5 +161,5 @@ module vga_driver (input wire clk,     // 25 MHz
   // The x/y coordinates that should be available on the NEXT cycle
   assign next_x = (h_state == H_ACTIVE_STATE)?h_counter:10'd_0 ;
   assign next_y = (v_state == V_ACTIVE_STATE)?v_counter:10'd_0 ;
-  
+  assign new_frame = (h_counter == 0 && v_counter == 0);
 endmodule
