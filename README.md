@@ -14,13 +14,13 @@
 
 ### 准备程序
 
-- 找一个萝卜 asm, 注释掉所有 ecall
+- 找一个 asm, 注释掉所有 ecall
 - 用 rars 打开 asm, 编译，dump memory
 - 修改 `rom.v` 里面的文件路径
 - 编译： `iverilog ./single_cycle_cpu_tb.v -y . -o single_cycle_cpu_tb`
 - 仿真： `vvp -n single_cycle_cpu_tb -vcd`
 
-查看波形时，![](2022-03-13-02-45-21.png) a0 的值即为萝卜的 LED 的值
+查看波形时，![](2022-03-13-02-45-21.png) a0 的值即为的 LED 的值
 
 ### 编译 C 程序
 
